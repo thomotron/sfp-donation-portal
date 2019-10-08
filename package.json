@@ -1,0 +1,19 @@
+{
+  "name": "sfp-donation-portal",
+  "version": "0.0.1",
+  "description": "A simple donation portal for the Strike Force Phoenix Arma community",
+  "main": " ",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomotron/sfp-donation-portal.git"
+  },
+  "author": "Thomotron",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/thomotron/sfp-donation-portal/issues"
+  },
+  "homepage": "https://github.com/thomotron/sfp-donation-portal#readme"
+}
