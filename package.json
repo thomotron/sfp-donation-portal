@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/thomotron/sfp-donation-portal/issues"
   },
-  "homepage": "https://github.com/thomotron/sfp-donation-portal#readme"
+  "homepage": "https://github.com/thomotron/sfp-donation-portal#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "vue": "^2.6.10"
+  }
 }
