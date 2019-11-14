@@ -72,6 +72,16 @@ body
     align-items: center;
     flex-flow: row;
 }
+.discord[disabled]
+{
+    cursor: default;
+
+    background-color: #ccc;
+}
+.discord[disabled] *
+{
+    opacity: .7;
+}
 .discord img
 {
     height: 100%;
@@ -81,8 +91,6 @@ body
 }
 .discord span
 {
-    color: #fff;
-
     flex-grow: 1;
 }
 
