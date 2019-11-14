@@ -2,6 +2,7 @@
 var PORT = 8080
 var CLIENT_ID = ""
 var CLIENT_SECRET = ""
+var REDIRECT_URI = "http://localhost:8080/callback/discord";
 
 // Node module imports
 var express = require('express');
@@ -41,22 +42,38 @@ app.get('/callback/discord', function(req, res){
     else if (!req.query.hasOwnProperty('code') || !req.query.hasOwnProperty('state')) // Got neither '?code=...' nor '?state=...'
         return res.status(400).send('<html><body onload="window.close()">Authorisation failed for an unknown reason.</body></html>');
 
-    // Ok, so we have a code, let's use it.
-    var form = {
-        client_id: CLIENT_ID,
-        client_secret: CLIENT_SECRET,
-        grant_type: 'authorization_code',
-        code: req.query.code,
-        scope: 'identify'
+    // Fill out the form data
+    var options = {
+        method: 'POST',
+        uri: 'https://discordapp.com/api/oauth2/token',
+        form: {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            code: req.query.code,
+            scope: 'identify',
+            redirect_uri: REDIRECT_URI
+        },
+        json: true
     };
-    var oauthRes = await request.post('https://discordapp.com/api/oauth2/token').form(form);
 
-    // Make sure we got an access token
-    if (!oauthRes.json().hasOwnProperty('access_token'))
-        return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
+    // Make the requst
+    request(options)
+        .then(function (json) {
+            // Ensure we have an access token, failing the request otherwise
+            if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
 
-    // Add it to the session
-    req.session.discordToken = oauthRes.json().access_token;
+            // Save the token to the session
+            req.session.discordToken = json.access_token;
+
+            console.log("Got a token: " + req.session.discordToken);
+
+            return res.status(200).send('<html><body onload="window.close()">Authorisation successful, you may now close this window.</body></html>');
+        })
+        .catch(function (err) {
+            // Fail the request
+            return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
+        });
 });
 
 // Start the app
