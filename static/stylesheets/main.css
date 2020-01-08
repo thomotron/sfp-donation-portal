@@ -144,6 +144,21 @@ body
     align-items: center;
     flex-flow: row;
 }
+.paypal[disabled]
+{
+    cursor: default;
+    pointer-events: none;
+
+    background-color: #ddd;
+}
+.paypal[disabled] *
+{
+    opacity: .5;
+}
+.paypal[disabled] img
+{
+    filter: saturate(0);
+}
 .paypal img
 {
     height: 50%;

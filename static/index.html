@@ -23,7 +23,7 @@
                 <span v-text="authorised && discordName ? 'Authorised as ' + discordName : 'Authorise with Discord'"></span>
             </a>
             <br>
-            <a class="paypal">
+            <a class="paypal" v-bind:disabled="!anonymous && !authorised">
                 <span>Donate with</span>
                 &nbsp;
                 <img src="images/paypal-logotype.svg">
