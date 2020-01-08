@@ -1,7 +1,7 @@
 // Config variables
-var PORT = 8080
 var CLIENT_ID = ""
 var CLIENT_SECRET = ""
+var PORT = 8080;
 var REDIRECT_URI = "http://localhost:8080/callback/discord";
 
 // Node module imports
@@ -39,8 +39,8 @@ app.get('/callback/discord', function(req, res){
         return res.status(400).send('<html><body onload="window.close()">Authorisation cancelled, you may now close this window.</body></html>');
     else if (req.query.hasOwnProperty('error')) // Got '?error=...'
         return res.status(400).send('<html><body onload="window.close()">Authorisation failed, you may now close this window.</body></html>');
-    else if (!req.query.hasOwnProperty('code') || !req.query.hasOwnProperty('state')) // Got neither '?code=...' nor '?state=...'
-        return res.status(400).send('<html><body onload="window.close()">Authorisation failed for an unknown reason.</body></html>');
+    else if (!req.query.hasOwnProperty('code')) // Didn't get '?code=...'
+        return res.status(400).send('<html><body onload="/*window.close()*/">Authorisation failed for an unknown reason.</body></html>');
 
     // Fill out the form data
     var options = {
@@ -59,7 +59,7 @@ app.get('/callback/discord', function(req, res){
 
     // Make the requst
     request(options)
-        .then(function (json) {
+        .then(function(json) {
             // Ensure we have an access token, failing the request otherwise
             if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
 
@@ -70,9 +70,40 @@ app.get('/callback/discord', function(req, res){
 
             return res.status(200).send('<html><body onload="window.close()">Authorisation successful, you may now close this window.</body></html>');
         })
-        .catch(function (err) {
+        .catch(function(err) {
             // Fail the request
             return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
+        });
+});
+
+// Check authorisation status
+app.get('/authorised', function(req, res) {
+    // Return unauthorised if we don't have a token or if it's empty
+    if (!req.session.hasOwnProperty('discordToken') || req.session.discordToken == '') return res.json({authorised: false});
+
+    console.log('Checking auth with token: ' + req.session.discordToken);
+
+    // Fill out the Discord form data
+    var options = {
+        method: 'GET',
+        uri: 'https://discordapp.com/api/users/@me',
+        headers: {
+            'Authorization': 'Bearer ' + req.session.discordToken
+        },
+        json: true
+    }
+
+    // Try get the user's details from Discord with the token
+    request(options)
+        .then(function(json) {
+            // Check if there's an ID and return authorised if so
+            if (json.id) return res.json({authorised: true});
+            // Otherwise something is borked and they aren't auth'd properly
+            else return res.json({authorised: false});
+        })
+        .catch(function(err) {
+            // Fail the request
+            return res.status(500).json({authorised: false});
         });
 });
 
