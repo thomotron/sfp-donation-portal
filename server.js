@@ -33,7 +33,7 @@ app.use(function(req, res, next){
 // Base route
 
 // Discord authorisation
-app.get('/callback/discord', function(req, res){
+app.get('/discord/callback', function(req, res){
     // Validate our URL query strings
     if (req.query.hasOwnProperty('error') && req.query.error == 'access_denied') // Got '?error=access_denied'
         return res.status(400).send('<html><body onload="window.close()">Authorisation cancelled, you may now close this window.</body></html>');
@@ -77,7 +77,7 @@ app.get('/callback/discord', function(req, res){
 });
 
 // Check authorisation status
-app.get('/authorised', function(req, res) {
+app.get('/discord/authorised', function(req, res) {
     // Return unauthorised if we don't have a token or if it's empty
     if (!req.session.hasOwnProperty('discordToken') || req.session.discordToken == '') return res.json({authorised: false});
 
