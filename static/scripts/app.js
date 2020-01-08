@@ -1,10 +1,20 @@
+// Define and initialise up the form
 var form = new Vue({
     el: '#form',
     data: {
         anonymous: false,
         authorised: false,
         discordName: '',
-        discordAvatar: ''
+        discordAvatar: '',
+        amount: 0,
+        moneyFormat: {
+            decimal: '.',
+            thousands: ',',
+            prefix: 'AU$',
+            suffix: '',
+            precision: 2,
+            masked: false
+        }
     },
     methods: {
         openDiscordPopout: function() {

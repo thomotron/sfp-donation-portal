@@ -43,6 +43,27 @@ body
     background-size: contain;
 }
 
+.donation-amount
+{
+    font-size: 18pt;
+    font-weight: bold;
+    font-style: normal;
+
+    display: flex;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: 70px;
+    padding: 10px;
+
+    text-align: center;
+    text-decoration: none !important;
+
+    color: #000 !important;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
 .anonymous-toggle-group
 {
     align-self: flex-start;

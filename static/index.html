@@ -12,6 +12,8 @@
         <div class="form-container" id="form">
             <img class="icon" src="images/sfp-logo.png">
             <h1>Donate to <br> Strike Force Phoenix</h1>
+            <money class="donation-amount" v-bind="moneyFormat" v-model="amount"></money>
+            <br>
             <span class="anonymous-toggle-group">
                 <input type="checkbox" id="anonymous-donation" v-model="anonymous">
                 <label for="anonymous-donation">I want to donate anonymously</label>
@@ -33,6 +35,7 @@
     </center>
     <script src="scripts/vue.js"></script>
     <script src="scripts/vue-resource.min.js"></script>
+    <script src="scripts/v-money.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
