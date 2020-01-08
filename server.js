@@ -38,7 +38,7 @@ app.get('/discord/callback', function(req, res){
     if (req.query.hasOwnProperty('error') && req.query.error == 'access_denied') // Got '?error=access_denied'
         return res.status(400).send('<html><body onload="window.close()">Authorisation cancelled, you may now close this window.</body></html>');
     else if (req.query.hasOwnProperty('error')) // Got '?error=...'
-        return res.status(400).send('<html><body onload="window.close()">Authorisation failed, you may now close this window.</body></html>');
+        return res.status(400).send('<html><body onload="/*window.close()*/">Authorisation failed, you may now close this window.</body></html>');
     else if (!req.query.hasOwnProperty('code')) // Didn't get '?code=...'
         return res.status(400).send('<html><body onload="/*window.close()*/">Authorisation failed for an unknown reason.</body></html>');
 
@@ -61,7 +61,7 @@ app.get('/discord/callback', function(req, res){
     request(options)
         .then(function(json) {
             // Ensure we have an access token, failing the request otherwise
-            if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
+            if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="/*window.close()*/">Failed to get access token from Discord.</body></html>');
 
             // Save the token to the session
             req.session.discordToken = json.access_token;
@@ -72,7 +72,7 @@ app.get('/discord/callback', function(req, res){
         })
         .catch(function(err) {
             // Fail the request
-            return res.status(500).send('<html><body onload="window.close()">Failed to get access token from Discord.</body></html>');
+            return res.status(500).send('<html><body onload="/*window.close()*/">Failed to get access token from Discord.</body></html>');
         });
 });
 
