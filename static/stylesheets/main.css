@@ -83,6 +83,10 @@ body
 {
     opacity: .7;
 }
+.discord[disabled] img
+{
+    filter: saturate(0);
+}
 .discord img
 {
     height: 100%;

@@ -2,7 +2,9 @@ var form = new Vue({
     el: '#form',
     data: {
         anonymous: false,
-        authorised: false
+        authorised: false,
+        discordName: '',
+        discordAvatar: ''
     },
     methods: {
         openDiscordPopout: function() {
@@ -14,13 +16,28 @@ var form = new Vue({
         },
         checkIfAuthorised: function() {
             // Get the authorised status from the API and parse it as JSON
-            this.$http.get('/discord/authorised').then(res => {return res.json()}).then((json) => {
+            this.$http.get('/discord/authorised').then(res => {return res.json()}).then(json => {
                 // Update the authorised state
                 this.authorised = json.authorised;
+
+                // Update our name and avatar according to our auth state
+                if (json.authorised) {
+                    this.updateDiscordDetails();
+                } else {
+                    this.discordName = '';
+                    this.discordAvatar = '';
+                }
+            });
+        },
+        updateDiscordDetails: function() {
+            this.$http.get('/discord/profile').then(res => {return res.json()}).then(json => {
+                // Update our name and avatar
+                this.discordName = json.name;
+                this.discordAvatar = json.avatar;
             });
         }
     },
-    mounted: function() {
+    created: function() {
         // Check if we're auth'd already
         this.checkIfAuthorised();
     }

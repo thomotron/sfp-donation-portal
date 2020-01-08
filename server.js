@@ -96,15 +96,29 @@ app.get('/discord/authorised', function(req, res) {
     // Try get the user's details from Discord with the token
     request(options)
         .then(function(json) {
-            // Check if there's an ID and return authorised if so
-            if (json.id) return res.json({authorised: true});
-            // Otherwise something is borked and they aren't auth'd properly
-            else return res.json({authorised: false});
+            // Update the user's discord details
+            req.session.discordId = json.id;
+            req.session.discordName = json.username;
+            req.session.discordAvatar = 'https://cdn.discordapp.com/avatars/' + json.id + '/' + json.avatar + '.png?size=128';
+
+            return res.json({authorised: true});
         })
         .catch(function(err) {
             // Fail the request
             return res.status(500).json({authorised: false});
         });
+});
+
+// Get Discord name and avatar
+app.get('/discord/profile', function(req, res) {
+    // Fail the request if there isn't any data
+    if (!req.session.hasOwnProperty('discordName') || !req.session.hasOwnProperty('discordAvatar')) return res.status(404);
+
+    // Return the user's name and avatar
+    return res.json({
+        name: req.session.discordName,
+        avatar: req.session.discordAvatar
+    });
 });
 
 // Start the app

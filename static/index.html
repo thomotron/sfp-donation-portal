@@ -16,9 +16,9 @@
                 <input type="checkbox" id="anonymous-donation" v-model="anonymous">
                 <label for="anonymous-donation">I want to donate anonymously</label>
             </span>
-            <a class="discord" v-bind:disabled="anonymous || authorised" v-on:click="openDiscordPopout()">
-                <img src="images/discord-logo-white.svg">
-                <span v-text="authorised ? 'Authorised' : 'Authorise with Discord'"></span>
+            <a class="discord" v-bind:disabled="anonymous" v-on:click="openDiscordPopout()">
+                <img v-bind:src="authorised && discordAvatar ? discordAvatar : 'images/discord-logo-white.svg'" v-bind:style="authorised && discordAvatar ? 'border-radius: 50%' : ''">
+                <span v-text="authorised && discordName ? 'Authorised as ' + discordName : 'Authorise with Discord'"></span>
             </a>
             <br>
             <a class="paypal">
