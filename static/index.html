@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>SFP Donations</title>
+    <link rel="stylesheet" href="stylesheets/main.css">
+</head>
+<body>
+    <center class="container">
+        <div class="form-container" id="form">
+            <img class="icon" src="images/sfp-logo.png">
+            <h1>Donate to <br> Strike Force Phoenix</h1>
+            <span class="anonymous-toggle-group">
+                <input type="checkbox" id="anonymous-donation" v-model="anonymous">
+                <label for="anonymous-donation">I want to donate anonymously</label>
+            </span>
+            <a class="discord" v-bind:disabled="anonymous || authorised" v-on:click="openDiscordPopout()">
+                <img src="images/discord-logo-white.svg">
+                <span v-text="authorised ? 'Authorised' : 'Authorise with Discord'"></span>
+            </a>
+            <br>
+            <a class="paypal">
+                <span>Donate with</span>
+                &nbsp;
+                <img src="images/paypal-logotype.svg">
+            </a>
+        </div>
+        <span class="footer">
+            <!-- Made with ❤️ by <a href="https://github.com/thomotron">Thomotron</a> -->
+        </span>
+    </center>
+    <script src="scripts/vue.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

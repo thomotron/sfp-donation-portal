@@ -37,7 +37,7 @@ body
 {
     width: 200px;
 
-    background-image: url('static/images/sfp-logo.png');
+    background-image: url('/images/sfp-logo.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
