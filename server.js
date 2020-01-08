@@ -2,7 +2,7 @@
 var CLIENT_ID = ""
 var CLIENT_SECRET = ""
 var PORT = 8080;
-var REDIRECT_URI = "http://localhost:8080/callback/discord";
+var REDIRECT_URI = "http://localhost:8080/discord/callback";
 
 // Node module imports
 var express = require('express');
