@@ -31,6 +31,41 @@ if (!tables.find(table => table.name == 'donation')) {
     db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
 }
 
+// SQL convenience functions
+// Get the top donators and how much they have donated between the given dates
+// Returns an array of objects containing name, avatar, and total donation
+// Format: [{name:str, avatar:str, total:float}, ...]
+function db_getLeaderboard(limit = 10, startDate, endDate) {
+    // Set up our initial statement and parameters
+    // We will add to these as we build the query and execute it later
+    var query = 'SELECT donorId, SUM(amount) AS total FROM donation'; // 'SELECT name, avatar, donations.total FROM donor LEFT JOIN (SELECT donorId, SUM(amount) AS total FROM donation GROUP BY donorId ORDER BY SUM(amount) LIMIT $limit) AS donations ON donations.donorId = donor.id;'
+    var params = {};
+    //var params = { $limit: limit };
+
+    // Determine what kind of date filtering we'll be using
+    if (startDate && endDate) { // Between two dates
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
+        params['startDate'] = startDate;
+        params['endDate'] = endDate;
+    } else if (startDate) { // After a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
+        params['startDate'] = startDate;
+    } else if (endDate) { // Before a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
+        params['endDate'] = endDate;
+    }
+
+    // Group by donor, order them by total donations, and limit to the top number of donors
+    query += ' GROUP BY donorId ORDER BY SUM(amount) LIMIT $limit';
+    params['limit'] = limit;
+
+    // Wrap our query with a join to the donor table
+    query = 'SELECT name, avatar, topDonors.total AS total FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id';
+
+    var donors = db.prepare(query).all(params);
+    console.log(JSON.stringify(donors));
+}
+
 // Express middleware config
 app.use(express.static(__dirname + '/static'));
 app.use(bodyParser.urlencoded({extended: false}));
