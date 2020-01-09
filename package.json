@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/thomotron/sfp-donation-portal#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "connect-sqlite3": "^0.9.11",
     "express": "^4.17.1",
+    "express-ipn": "^1.0.3",
     "express-session": "^1.17.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",

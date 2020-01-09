@@ -9,12 +9,15 @@ var express = require('express');
 var session = require('express-session');
 var sqlitestore = require('connect-sqlite3')(session);
 var request = require('request-promise');
+var ipn = require('express-ipn');
+var bodyParser = require('body-parser');
 
 // Node module instantiation
 var app = express();
 
 // Express middleware config
 app.use(express.static(__dirname + '/static'));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({
     secret: 'someSecretIdkWhyIsThisSigned???',
     store: new sqlitestore,
@@ -120,6 +123,20 @@ app.get('/discord/profile', function(req, res) {
         avatar: req.session.discordAvatar
     });
 });
+
+// Process PayPal Instant Payment Notifications from donations
+app.post('/paypal/donation', ipn.validator((err, content) => {
+    // Check if the IPN failed validation
+    if (err) {
+        console.log(err);
+        return;
+    }
+
+    // Dump the IPN to the console
+    console.log(JSON.stringify(content));
+}, true)); // Production mode?
+
+db_getLeaderboard();
 
 // Start the app
 app.listen(PORT);
