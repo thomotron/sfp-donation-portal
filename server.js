@@ -11,9 +11,25 @@ var sqlitestore = require('connect-sqlite3')(session);
 var request = require('request-promise');
 var ipn = require('express-ipn');
 var bodyParser = require('body-parser');
+var sqlite3 = require('better-sqlite3');
+var uuid = require('uuid/v4');
 
 // Node module instantiation
 var app = express();
+var db = new sqlite3('donations.db', { verbose: console.log });
+
+// Initialise the database if it's empty
+// Get a list of tables in the database
+var statement = db.prepare('SELECT name FROM sqlite_master WHERE type = \'table\'');
+var tables = statement.all();
+console.log(JSON.stringify(tables));
+// Make sure the donor and donation tables exist
+if (!tables.find(table => table.name == 'donor')) {
+    db.prepare('CREATE TABLE donor (id INTEGER, name TEXT NOT NULL, avatar TEXT NOT NULL, PRIMARY KEY (id))').run();
+}
+if (!tables.find(table => table.name == 'donation')) {
+    db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
+}
 
 // Express middleware config
 app.use(express.static(__dirname + '/static'));
@@ -136,8 +152,24 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
     console.log(JSON.stringify(content));
 }, true)); // Production mode?
 
+// Generates a donation ID
+app.get('/api/donationid', function(req, res) => {
+    // Return a new donation ID
+    return res.json({donationId: uuid()});
+});
+
+// Finishes the donation process and stores the donation within the database
+app.post('/api/donation', function(req, res) => {
+    // TODO: Store donation in the database
+    console.log(JSON.stringify(req.headers));
+    console.log(JSON.stringify(req.body));
+});
+
 db_getLeaderboard();
 
 // Start the app
 app.listen(PORT);
 console.log('Express server listening on port %d in %s mode', PORT, app.settings.env);
+
+// Close the database when we're done
+db.close();

@@ -7,6 +7,7 @@ var form = new Vue({
         discordName: '',
         discordAvatar: '',
         amount: 0,
+        donationId: '',
         moneyFormat: {
             decimal: '.',
             thousands: ',',
@@ -57,9 +58,61 @@ var form = new Vue({
                 this.discordName = json.name;
                 this.discordAvatar = json.avatar;
             });
+        },
+        openPaypalPopout: function() {
+            // Don't do anything if we don't have a donation ID
+            if (!this.donationId) return;
+
+            // Construct a button URL
+            var url = 'https://www.paypal.com/cgi-bin/webscr' +
+                        '?cmd=_donations' +                                         // This is a donation
+                        '&business=cocytus-services@aaaaaaaaaaaaaaaaaaaaaaaa.net' + // Send it to Cocytus Services
+                        '&item_name=Keep Cocytus up and running' +                  // Donation cause/name
+                        '&no_note=1' +                                              // Disable the note field
+                        '&currency_code=AUD' +                                      // Accept AUD
+                        '&amount=' + this.amount +                                  // The donation amount in dollars
+                        '&notify_url=https://tem.party/paypal/donation' +           // The return URL to send confirmation to
+                        '&image_url=https://i.imgur.com/bkvytpE.png' +              // Image shown as the recipient's icon (SFP Logo)
+                        '&custom=' + this.donationId;                               // Pass a unique donation ID as a token for the server to verify
+
+            // Open the popup
+            var w = window.open(
+                url,
+                'Donate with PayPal',
+                'width=375,height=485,top=' + ((window.innerHeight / 2) - 200) + ',left=' + ((window.innerWidth / 2) - 187)
+            );
+
+            // Handle the popup closing to refresh the donation pool
+            // Hacky, but it works for all origins, not just the site we're hosting
+            const vueInstance = this; // Necessary since 'this' becomes the DOM
+            var timer = setInterval(function() {
+                if (w.closed) {
+                    // Stop the timer, finish the donation, and refresh the donation panel
+                    clearInterval(timer);
+                    vueInstance.finishDonation();
+                    // TODO: Refresh donation panel
+                }
+            }, 250);
+        },
+        getDonations: function() {
+            this.$http.get('/api/donations').then(res => {return res.json()}).then(json => {
+                // Update our target and donor list
+                this.donationBalance = json.balance;
+                this.donationDonors = json.donors;
+                this.donationLeaderboard = json.leaderboard;
+            });
+        },
+        getDonationId: function() {
+            // Get a unique donation ID
+            this.$http.get('/api/donationId').then(res => {return res.json()}).then(json => {
+                this.donationId = json.donationId;
+            });
         }
     },
     created: function() {
+        // Get a donation ID for the PayPal button
+        this.getDonationId();
+
         // Check if we're auth'd already
         this.checkIfAuthorised();
     }

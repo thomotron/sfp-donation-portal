@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/thomotron/sfp-donation-portal#readme",
   "dependencies": {
+    "better-sqlite3": "^5.4.3",
     "body-parser": "^1.19.0",
     "connect-sqlite3": "^0.9.11",
     "express": "^4.17.1",
@@ -24,6 +25,7 @@
     "express-session": "^1.17.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.5",
+    "uuid": "^3.3.3",
     "v-money": "^0.8.1",
     "vue": "^2.6.10",
     "vue-resource": "^1.5.1"
