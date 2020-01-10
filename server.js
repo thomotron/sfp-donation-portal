@@ -224,4 +224,7 @@ app.listen(PORT);
 console.log('Express server listening on port %d in %s mode', PORT, app.settings.env);
 
 // Close the database when we're done
-db.close();
+process.on('exit', () => db.close());
+process.on('SIGHUP', () => process.exit(128 + 1));
+process.on('SIGINT', () => process.exit(128 + 2));
+process.on('SIGTERM', () => process.exit(128 + 15));
