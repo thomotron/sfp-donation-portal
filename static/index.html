@@ -43,7 +43,7 @@
                 v-bind:text="Math.floor((donationBalance / donationTarget) * 100) + '%'"
                 text-position="inside"
                 font-size="10"
-                text-fg-color="#444">
+                text-fg-color="#000">
             </vue-simple-progress>
             <span class="heading">This month's top donors</span>
             <div class="donor" v-for="donor in donationLeaderboard">
@@ -53,7 +53,7 @@
                 <vue-simple-progress
                     class="progress-bar"
                     size="50"
-                    v-bind:val="donor.total / donationTarget * 100"
+                    v-bind:val="donor.total / donationBalance * 100"
                     max="100"
                     bar-color="#e0e0e0"
                     bg-color="#f5f5f5">
