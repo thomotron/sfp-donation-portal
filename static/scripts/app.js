@@ -9,6 +9,7 @@ var form = new Vue({
         discordName: '',
         discordAvatar: '',
         amount: 0,
+        donationTarget: 0,
         donationBalance: 0,
         donationLeaderboard: null,
         moneyFormat: {
@@ -109,6 +110,7 @@ var form = new Vue({
         getDonations: function() {
             this.$http.get('/api/donations').then(res => {return res.json()}).then(json => {
                 // Update our target and donor list
+                this.donationTarget = json.target;
                 this.donationBalance = json.balance;
                 this.donationLeaderboard = json.leaderboard;
             });
