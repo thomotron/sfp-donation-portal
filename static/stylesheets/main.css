@@ -10,7 +10,7 @@ body
 {
     display: flex;
 
-    width: 350px;
+    width: 300px;
     margin-right: auto;
     margin-left: auto;
 
@@ -23,6 +23,8 @@ body
 {
     display: flex;
 
+    width: 100%;
+    height: 620px;
     padding: 20px;
 
     border-radius: 10px;
@@ -33,7 +35,7 @@ body
     justify-content: center;
 }
 
-.icon
+.form-container .icon
 {
     width: 200px;
 
@@ -43,7 +45,7 @@ body
     background-size: contain;
 }
 
-.donation-amount
+.form-container .donation-amount
 {
     font-size: 18pt;
     font-weight: bold;
@@ -64,12 +66,12 @@ body
     border-radius: 5px;
 }
 
-.anonymous-toggle-group
+.form-container .anonymous-toggle-group
 {
     align-self: flex-start;
 }
 
-.discord
+.form-container .discord
 {
     font-size: 16pt;
     font-weight: bold;
@@ -93,34 +95,34 @@ body
     align-items: center;
     flex-flow: row;
 }
-.discord[disabled]
+.form-container .discord[disabled]
 {
     cursor: default;
     pointer-events: none;
 
     background-color: #ccc;
 }
-.discord[disabled] *
+.form-container .discord[disabled] *
 {
     opacity: .7;
 }
-.discord[disabled] img
+.form-container .discord[disabled] img
 {
     filter: saturate(0);
 }
-.discord img
+.form-container .discord img
 {
     height: 100%;
     /* height: 100%; */
 
     align-self: flex-start;
 }
-.discord span
+.form-container .discord span
 {
     flex-grow: 1;
 }
 
-.paypal
+.form-container .paypal
 {
     font-size: 16pt;
     font-weight: bold;
@@ -144,24 +146,143 @@ body
     align-items: center;
     flex-flow: row;
 }
-.paypal[disabled]
+.form-container .paypal[disabled]
 {
     cursor: default;
     pointer-events: none;
 
     background-color: #ddd;
 }
-.paypal[disabled] *
+.form-container .paypal[disabled] *
 {
     opacity: .5;
 }
-.paypal[disabled] img
+.form-container .paypal[disabled] img
 {
     filter: saturate(0);
 }
-.paypal img
+.form-container .paypal img
 {
     height: 50%;
+}
+
+.progress-container
+{
+    display: flex;
+
+    width: 100%;
+    height: 620px;
+    padding: 20px;
+
+    border-radius: 10px;
+    box-shadow: 0 0 10px -5px rgba(0,0,0,.75);
+
+    justify-content: flex-start;
+    flex-flow: column;
+    align-items: center;
+}
+
+.progress-container .heading
+{
+    font-size: 16pt;
+    font-weight: bold;
+
+    margin-bottom: 10px;
+}
+.progress-container .heading:not(:first-child)
+{
+    margin-top: 20px;
+}
+
+.progress-container .funding-progress-bar
+{
+    width: 100%;
+
+    text-align: left;
+}
+.progress-container .funding-progress-bar *
+{
+    border-radius: 5px;
+}
+
+.progress-container .donor
+{
+    font-size: 12pt;
+    line-height: 36px;
+
+    position: relative;
+
+    display: flex;
+    flex-direction: row;
+
+    box-sizing: border-box;
+    width: 100%;
+    height: 50px;
+    margin-bottom: 10px;
+    padding: 7px;
+
+    text-align: left;
+
+    border-radius: 5px;
+    /* background-color: #f5f5f5; */
+}
+.progress-container .donor:last-child
+{
+    margin-bottom: 0;
+}
+
+.progress-container .donor *
+{
+    margin-right: 10px;
+}
+.progress-container .donor span:nth-last-of-type(1)
+{
+    margin-right: 0;
+}
+
+.progress-container .donor img
+{
+    height: 100%;
+
+    border-radius: 50%;
+}
+
+.progress-container .donor .name
+{
+    overflow: hidden;
+
+    min-width: 0;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    flex-basis: 100%;
+}
+
+.progress-container .donor .total
+{
+    font-weight: bold;
+    /* Comment */
+
+    text-align: right;
+}
+
+.progress-container .donor .progress-bar
+{
+    position: absolute;
+    z-index: -10;
+    top: 0;
+    left: 0;
+
+    width: 100%;
+    height: 100%;
+}
+.progress-container .donor .progress-bar *
+{
+    width: 100%;
+    height: 100%;
+
+    border-radius: 5px;
 }
 
 .footer
