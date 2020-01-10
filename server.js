@@ -144,6 +144,9 @@ app.get('/discord/callback', function(req, res){
             return res.status(200).send('<html><body onload="window.close()">Authorisation successful, you may now close this window.</body></html>');
         })
         .catch(function(err) {
+            // Dump error to the console
+            console.error(err);
+
             // Fail the request
             return res.status(500).send('<html><body onload="/*window.close()*/">Failed to get access token from Discord.</body></html>');
         });
@@ -180,6 +183,9 @@ app.get('/discord/authorised', function(req, res) {
             return res.json({authorised: true});
         })
         .catch(function(err) {
+            // Dump error to the console
+            console.error(err);
+
             // Fail the request
             return res.status(500).json({authorised: false});
         });
