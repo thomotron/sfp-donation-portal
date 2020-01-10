@@ -51,6 +51,21 @@ function db_addOrUpdateDonor(id, name, avatar) {
     // Run the query
     db.prepare(query).run(params);
 }
+
+// Add a donation to the database
+function db_addDonation(donorId, amount, timestamp) {
+    var query = 'INSERT INTO donation (id, donorId, amount, timestamp) VALUES ($id, $donorId, $amount, $timestamp)';
+    var params = {
+        id: uuid(),
+        donorId: donorId,
+        amount: amount,
+        timestamp: timestamp
+    };
+
+    // Run the query
+    db.prepare(query).run(params);
+}
+
 // Get how much has been donated between the given start and end dates
 function db_getFunds(startDate, endDate) {
     var query = 'SELECT SUM(amount) AS total FROM donation';
@@ -73,6 +88,7 @@ function db_getFunds(startDate, endDate) {
     var total = db.prepare(query).get(params).total;
     return total ? total : 0;
 }
+
 // Get the top donators and how much they have donated between the given dates
 // Returns an array of objects containing name, avatar, and total donation
 // Format: [{name:str, avatar:str, total:float}, ...]
@@ -232,15 +248,20 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
         return;
     }
 
-    // Dump the IPN to the console
-    console.log(JSON.stringify(content));
-
+    // Log the donation
     if (content.custom) {
         console.log('Got a $' + content.mc_gross + ' ' + content.mc_currency + ' donation from Discord ID ' + content.custom);
     } else {
         console.log('Got an anonymous $' + content.mc_gross + ' ' + content.mc_currency + ' donation');
     }
 
+    // Get the details
+    var donorId = content.custom ? content.custom : 0;
+    var amount = content.mc_gross;
+    var timestamp = Math.floor(Date.now()/1000); // Epoch in seconds
+
+    // Add donation to the database
+    db_addDonation(donorId, amount, timestamp);
 }, true)); // Production mode?
 
 app.get('/api/donations', function(req, res) {
