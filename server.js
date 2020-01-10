@@ -51,6 +51,28 @@ function db_addOrUpdateDonor(id, name, avatar) {
     // Run the query
     db.prepare(query).run(params);
 }
+// Get how much has been donated between the given start and end dates
+function db_getFunds(startDate, endDate) {
+    var query = 'SELECT SUM(amount) AS total FROM donation';
+    var params = {};
+
+    // Determine the kind of date filtering we'll be using
+    if (startDate && endDate) { // Between two dates
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
+        params['startDate'] = startDate;
+        params['endDate'] = endDate;
+    } else if (startDate) { // After a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
+        params['startDate'] = startDate;
+    } else if (endDate) { // Before a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
+        params['endDate'] = endDate;
+    }
+
+    // Run the query
+    var total = db.prepare(query).get(params).total;
+    return total ? total : 0;
+}
 // Get the top donators and how much they have donated between the given dates
 // Returns an array of objects containing name, avatar, and total donation
 // Format: [{name:str, avatar:str, total:float}, ...]
@@ -223,6 +245,7 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
 }, true)); // Production mode?
 
 db_getLeaderboard();
+console.log(db_getFunds('2011-01-01', '2012-01-01'));
 
 // Start the app
 app.listen(PORT);
