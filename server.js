@@ -57,9 +57,8 @@ function db_addOrUpdateDonor(id, name, avatar) {
 function db_getLeaderboard(limit = 10, startDate, endDate) {
     // Set up our initial statement and parameters
     // We will add to these as we build the query and execute it later
-    var query = 'SELECT donorId, SUM(amount) AS total FROM donation'; // 'SELECT name, avatar, donations.total FROM donor LEFT JOIN (SELECT donorId, SUM(amount) AS total FROM donation GROUP BY donorId ORDER BY SUM(amount) LIMIT $limit) AS donations ON donations.donorId = donor.id;'
+    var query = 'SELECT donorId, SUM(amount) AS total FROM donation';
     var params = {};
-    //var params = { $limit: limit };
 
     // Determine what kind of date filtering we'll be using
     if (startDate && endDate) { // Between two dates
