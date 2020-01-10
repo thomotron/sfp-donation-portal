@@ -13,7 +13,7 @@ var form = new Vue({
         donationTarget: 0,
         donationBalance: 0,
         donationLeaderboard: null,
-        donationProgressDollars: false,
+        donationProgressDollars: true,
         moneyFormat: {
             decimal: '.',
             thousands: ',',
