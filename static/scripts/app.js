@@ -1,7 +1,8 @@
 // Define and initialise up the form
 var form = new Vue({
-    el: '#form',
+    el: '#container',
     data: {
+        isTheFormCurrentyBeingDisplayedAsTheActivePanel: false,
         anonymous: false,
         authorised: false,
         locked: false,

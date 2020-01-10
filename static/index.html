@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="stylesheets/main.css">
 </head>
 <body>
-    <center class="container">
-        <div class="form-container" id="form">
+    <center class="container" id="container">
+        <!-- Donation form container -->
+        <div class="form-container" v-if="isTheFormCurrentyBeingDisplayedAsTheActivePanel">
             <img class="icon" src="images/sfp-logo.png">
             <h1>Donate to <br> Strike Force Phoenix</h1>
             <money class="donation-amount" v-bind="moneyFormat" v-model="amount" v-bind:disabled="locked"></money>
@@ -29,6 +30,18 @@
                 <img src="images/paypal-logotype.svg">
             </a>
         </div>
+        <!-- Funding progress container -->
+        <div class="progress-container" v-if="!isTheFormCurrentyBeingDisplayedAsTheActivePanel">
+            <h3>Funding Progress</h3>
+            <progress-bar class="funding-progress-bar" v-bind:val="donationBalance / donationTarget" max="1"></progress-bar>
+            <h3>This month's top donors</h3>
+            <div class="donor" v-for="donor in donationLeaderboard">
+                <img v-bind:src="donor.avatar">
+                <span class="name">{{donor.name}}</span>
+                <span class="total">{{donor.total | currency}}</span>
+                <progress-bar class="progress-bar" v-bind:val="donor.amount / donationTarget" max="1"></progress-bar>
+            </div>
+        </div>
         <span class="footer">
             <!-- Made with ❤️ by <a href="https://github.com/thomotron">Thomotron</a> -->
         </span>
@@ -36,6 +49,8 @@
     <script src="scripts/vue.js"></script>
     <script src="scripts/vue-resource.min.js"></script>
     <script src="scripts/v-money.js"></script>
+    <script src="scripts/vue-simple-progress.min.js"></script>
+    <script src="scripts/vue2-filters.min.js"></script>
     <script src="scripts/app.js"></script>
 </body>
 </html>
