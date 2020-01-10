@@ -60,7 +60,7 @@ function db_getLeaderboard(limit = 10, startDate, endDate) {
     params['limit'] = limit;
 
     // Wrap our query with a join to the donor table
-    query = 'SELECT name, avatar, topDonors.total AS total FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id';
+    query = 'SELECT name, avatar, topDonors.total AS total FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id ORDER BY topDonors.total DESC';
 
     var donors = db.prepare(query).all(params);
     console.log(JSON.stringify(donors));
