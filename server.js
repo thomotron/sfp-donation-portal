@@ -243,6 +243,23 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
 
 }, true)); // Production mode?
 
+app.get('/api/donations', function(req, res) {
+    // Get this month's date range
+    var today = new Date();
+    var endOfMonth = new Date(today.getFullYear(), today.getMonth()+1, 0);
+    var monthStart = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-01';
+    var monthEnd = endOfMonth.getFullYear() + '-' + ('0' + (endOfMonth.getMonth() + 1)).slice(-2) + '-' + ('0' + endOfMonth.getDate()).slice(-2);
+
+    // Get this month's balance
+    var balance = db_getFunds(monthStart, monthEnd);
+
+    // Get this month's leaderboard
+    var leaderboard = db_getLeaderboard(monthStart, monthEnd);
+
+    // Send this month's balance and leaderboard
+    return res.json({balance: balance, leaderboard: leaderboard});
+});
+
 db_getLeaderboard();
 console.log(db_getFunds('2011-01-01', '2012-01-01'));
 

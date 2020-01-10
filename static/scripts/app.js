@@ -9,7 +9,8 @@ var form = new Vue({
         discordName: '',
         discordAvatar: '',
         amount: 0,
-        donationId: '',
+        donationBalance: 0,
+        donationLeaderboard: null,
         moneyFormat: {
             decimal: '.',
             thousands: ',',
@@ -17,7 +18,8 @@ var form = new Vue({
             suffix: '',
             precision: 2,
             masked: false
-        }
+        },
+        refreshTimer: null
     },
     methods: {
         openDiscordPopout: function() {
@@ -108,13 +110,19 @@ var form = new Vue({
             this.$http.get('/api/donations').then(res => {return res.json()}).then(json => {
                 // Update our target and donor list
                 this.donationBalance = json.balance;
-                this.donationDonors = json.donors;
                 this.donationLeaderboard = json.leaderboard;
             });
         }
     },
     created: function() {
-        // Check if we're auth'd already
+        // Start the refresh timer
+        var vueInstance = this; // Necessary since 'this' becomes the DOM
+        this.refreshTimer = setInterval(() => {
+            vueInstance.getDonations();
+        }, 15000);
+
+        // Get our initial state
+        this.getDonations();
         this.checkIfAuthorised();
     }
 });
