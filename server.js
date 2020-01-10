@@ -32,6 +32,25 @@ if (!tables.find(table => table.name == 'donation')) {
 }
 
 // SQL convenience functions
+// Add a new donor or update an existing one
+function db_addOrUpdateDonor(id, name, avatar) {
+    // Insert a new donor into the donor table
+    var query = 'INSERT INTO donor (id, name, avatar) VALUES ($id, $name, $avatar)';
+    var params = {
+        id: id,
+        name: name,
+        avatar: avatar
+    };
+
+    // Handle conflicts by updating the existing entry
+    query += ' ON CONFLICT (id) DO UPDATE SET name = $name, avatar = $avatar';
+
+    // Only update the existing entry if it's actually different
+    query += ' WHERE name != $name OR avatar != $avatar';
+
+    // Run the query
+    db.prepare(query).run(params);
+}
 // Get the top donators and how much they have donated between the given dates
 // Returns an array of objects containing name, avatar, and total donation
 // Format: [{name:str, avatar:str, total:float}, ...]
@@ -154,6 +173,9 @@ app.get('/discord/authorised', function(req, res) {
             req.session.discordId = json.id;
             req.session.discordName = json.username;
             req.session.discordAvatar = 'https://cdn.discordapp.com/avatars/' + json.id + '/' + json.avatar + '.png?size=128';
+
+            // Add the user's details to the database
+            db_addOrUpdateDonor(req.session.discordId, req.session.discordName, req.session.discordAvatar);
 
             return res.json({authorised: true});
         })
