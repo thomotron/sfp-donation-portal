@@ -12,18 +12,18 @@
         <div class="form-container" id="form">
             <img class="icon" src="images/sfp-logo.png">
             <h1>Donate to <br> Strike Force Phoenix</h1>
-            <money class="donation-amount" v-bind="moneyFormat" v-model="amount"></money>
+            <money class="donation-amount" v-bind="moneyFormat" v-model="amount" v-bind:disabled="locked"></money>
             <br>
             <span class="anonymous-toggle-group">
                 <input type="checkbox" id="anonymous-donation" v-model="anonymous">
                 <label for="anonymous-donation">I want to donate anonymously</label>
             </span>
-            <a class="discord" v-bind:disabled="anonymous" v-on:click="openDiscordPopout()">
+            <a class="discord" v-bind:disabled="anonymous || locked" v-on:click="openDiscordPopout()">
                 <img v-bind:src="authorised && discordAvatar ? discordAvatar : 'images/discord-logo-white.svg'" v-bind:style="authorised && discordAvatar ? 'border-radius: 50%' : ''">
                 <span v-text="authorised && discordName ? 'Authorised as ' + discordName : 'Authorise with Discord'"></span>
             </a>
             <br>
-            <a class="paypal" v-bind:disabled="!anonymous && !authorised" v-on:click="openPaypalPopout()">
+            <a class="paypal" v-bind:disabled="!anonymous && !authorised || locked" v-on:click="openPaypalPopout()">
                 <span>Donate with</span>
                 &nbsp;
                 <img src="images/paypal-logotype.svg">

@@ -166,10 +166,11 @@ app.get('/discord/authorised', function(req, res) {
 // Get Discord name and avatar
 app.get('/discord/profile', function(req, res) {
     // Fail the request if there isn't any data
-    if (!req.session.hasOwnProperty('discordName') || !req.session.hasOwnProperty('discordAvatar')) return res.status(404);
+    if (!req.session.hasOwnProperty('discordId') || !req.session.hasOwnProperty('discordName') || !req.session.hasOwnProperty('discordAvatar')) return res.status(404);
 
     // Return the user's name and avatar
     return res.json({
+        id: req.session.discordId,
         name: req.session.discordName,
         avatar: req.session.discordAvatar
     });
@@ -185,20 +186,14 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
 
     // Dump the IPN to the console
     console.log(JSON.stringify(content));
+
+    if (content.custom) {
+        console.log('Got a $' + content.mc_gross + ' ' + content.mc_currency + ' donation from Discord ID ' + content.custom);
+    } else {
+        console.log('Got an anonymous $' + content.mc_gross + ' ' + content.mc_currency + ' donation');
+    }
+
 }, true)); // Production mode?
-
-// Generates a donation ID
-app.get('/api/donationid', function(req, res) => {
-    // Return a new donation ID
-    return res.json({donationId: uuid()});
-});
-
-// Finishes the donation process and stores the donation within the database
-app.post('/api/donation', function(req, res) => {
-    // TODO: Store donation in the database
-    console.log(JSON.stringify(req.headers));
-    console.log(JSON.stringify(req.body));
-});
 
 db_getLeaderboard();
 

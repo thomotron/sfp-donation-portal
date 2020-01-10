@@ -4,6 +4,8 @@ var form = new Vue({
     data: {
         anonymous: false,
         authorised: false,
+        locked: false,
+        discordId: '',
         discordName: '',
         discordAvatar: '',
         amount: 0,
@@ -47,6 +49,7 @@ var form = new Vue({
                 if (json.authorised) {
                     this.updateDiscordDetails();
                 } else {
+                    this.discordId = '';
                     this.discordName = '';
                     this.discordAvatar = '';
                 }
@@ -55,13 +58,14 @@ var form = new Vue({
         updateDiscordDetails: function() {
             this.$http.get('/discord/profile').then(res => {return res.json()}).then(json => {
                 // Update our name and avatar
+                this.discordId = json.id;
                 this.discordName = json.name;
                 this.discordAvatar = json.avatar;
             });
         },
         openPaypalPopout: function() {
             // Don't do anything if we don't have a donation ID
-            if (!this.donationId) return;
+            if (!this.anonymous && !this.discordId) return;
 
             // Construct a button URL
             var url = 'https://www.paypal.com/cgi-bin/webscr' +
@@ -73,7 +77,10 @@ var form = new Vue({
                         '&amount=' + this.amount +                                  // The donation amount in dollars
                         '&notify_url=https://tem.party/paypal/donation' +           // The return URL to send confirmation to
                         '&image_url=https://i.imgur.com/bkvytpE.png' +              // Image shown as the recipient's icon (SFP Logo)
-                        '&custom=' + this.donationId;                               // Pass a unique donation ID as a token for the server to verify
+                        (this.anonymous ? '' : '&custom=' + this.discordId);        // Pass our Discord ID to verify who made the donation (if not anonymous)
+
+            // Lock the form
+            this.locked = true;
 
             // Open the popup
             var w = window.open(
@@ -89,8 +96,11 @@ var form = new Vue({
                 if (w.closed) {
                     // Stop the timer, finish the donation, and refresh the donation panel
                     clearInterval(timer);
-                    vueInstance.finishDonation();
                     // TODO: Refresh donation panel
+
+                    // Reset the donation amount and unlock the form
+                    vueInstance.amount = 0;
+                    vueInstance.locked = false;
                 }
             }, 250);
         },
@@ -101,18 +111,9 @@ var form = new Vue({
                 this.donationDonors = json.donors;
                 this.donationLeaderboard = json.leaderboard;
             });
-        },
-        getDonationId: function() {
-            // Get a unique donation ID
-            this.$http.get('/api/donationId').then(res => {return res.json()}).then(json => {
-                this.donationId = json.donationId;
-            });
         }
     },
     created: function() {
-        // Get a donation ID for the PayPal button
-        this.getDonationId();
-
         // Check if we're auth'd already
         this.checkIfAuthorised();
     }
