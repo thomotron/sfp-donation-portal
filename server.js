@@ -76,7 +76,7 @@ function db_getFunds(startDate, endDate) {
 // Get the top donators and how much they have donated between the given dates
 // Returns an array of objects containing name, avatar, and total donation
 // Format: [{name:str, avatar:str, total:float}, ...]
-function db_getLeaderboard(limit = 10, startDate, endDate) {
+function db_getLeaderboard(startDate, endDate, limit = 10) {
     // Set up our initial statement and parameters
     // We will add to these as we build the query and execute it later
     var query = 'SELECT donorId, SUM(amount) AS total FROM donation';
@@ -102,8 +102,7 @@ function db_getLeaderboard(limit = 10, startDate, endDate) {
     // Wrap our query with a join to the donor table
     query = 'SELECT name, avatar, topDonors.total AS total FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id ORDER BY topDonors.total DESC';
 
-    var donors = db.prepare(query).all(params);
-    console.log(JSON.stringify(donors));
+    return db.prepare(query).all(params);
 }
 
 // Express middleware config
