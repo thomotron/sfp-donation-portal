@@ -10,7 +10,7 @@
 <body>
     <center class="container" id="container">
         <!-- Donation form container -->
-        <div class="form-container" v-if="isTheFormCurrentyBeingDisplayedAsTheActivePanel">
+        <div class="form-container" v-if="formDisplayed">
             <img class="icon" src="images/sfp-logo.png">
             <h1>Donate to <br> Strike Force Phoenix</h1>
             <money class="donation-amount" v-bind="moneyFormat" v-model="amount" v-bind:disabled="locked"></money>
@@ -31,7 +31,7 @@
             </a>
         </div>
         <!-- Funding progress container -->
-        <div class="progress-container" v-if="!isTheFormCurrentyBeingDisplayedAsTheActivePanel">
+        <div class="progress-container" v-if="!formDisplayed">
             <span class="heading"  v-on:click="donationProgressDollars = !donationProgressDollars">Funding Progress</span>
             <!-- Wrap the progress bar so we can catch the click event -->
             <span v-on:click="donationProgressDollars = !donationProgressDollars" style="width: 100%;">

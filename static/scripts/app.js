@@ -2,7 +2,7 @@
 var form = new Vue({
     el: '#container',
     data: {
-        isTheFormCurrentyBeingDisplayedAsTheActivePanel: false,
+        formDisplayed: false,
         anonymous: false,
         authorised: false,
         locked: false,
