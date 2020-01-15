@@ -2,7 +2,7 @@
 var form = new Vue({
     el: '#container',
     data: {
-        formDisplayed: false,
+        formDisplayed: true,
         anonymous: false,
         authorised: false,
         locked: false,
