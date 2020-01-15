@@ -30,6 +30,11 @@ if (!tables.find(table => table.name == 'donor')) {
 if (!tables.find(table => table.name == 'donation')) {
     db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
 }
+// Make sure the anonymous donor exists
+var anonymousDonorId = db.prepare('SELECT id FROM donor WHERE id = 0').get();
+if (!anonymousDonorId) {
+    db.prepare('INSERT INTO donor (id, name, avatar) VALUES (0, \'Anonymous donors\', \'images/unknown.png\')').run();
+}
 
 // SQL convenience functions
 // Add a new donor or update an existing one
