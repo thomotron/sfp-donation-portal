@@ -20,8 +20,7 @@ var db = new sqlite3('donations.db', { verbose: console.log });
 
 // Initialise the database if it's empty
 // Get a list of tables in the database
-var statement = db.prepare('SELECT name FROM sqlite_master WHERE type = \'table\'');
-var tables = statement.all();
+var tables = db.prepare('SELECT name FROM sqlite_master WHERE type = \'table\'').all();
 console.log(JSON.stringify(tables));
 // Make sure the donor and donation tables exist
 if (!tables.find(table => table.name == 'donor')) {
