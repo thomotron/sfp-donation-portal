@@ -1,6 +1,6 @@
 // Config variables
-var CLIENT_ID = ""
-var CLIENT_SECRET = ""
+var CLIENT_ID = "631115320823644180"
+var CLIENT_SECRET = "imZBuphj_AY1KSRnkzFRHtnAeCY-er3w"
 var PORT = 8080;
 var REDIRECT_URI = "http://localhost:8080/discord/callback";
 
