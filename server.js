@@ -279,7 +279,7 @@ app.get('/api/donations', function(req, res) {
     var balance = db_getFunds(monthStart, monthEnd);
 
     // Get this month's leaderboard
-    var leaderboard = db_getLeaderboard(monthStart, monthEnd);
+    var leaderboard = db_getLeaderboard(monthStart, monthEnd, 8);
 
     // Send this month's target, balance, and leaderboard
     return res.json({target: 140, balance: balance, leaderboard: leaderboard});
