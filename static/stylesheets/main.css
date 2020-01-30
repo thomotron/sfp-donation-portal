@@ -266,8 +266,8 @@ body
 .progress-container .donor .total
 {
     font-weight: bold;
-    /* Comment */
 
+    cursor: help;
     text-align: right;
 }
 

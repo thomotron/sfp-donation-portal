@@ -123,7 +123,7 @@ function db_getFees(startDate, endDate) {
 function db_getLeaderboard(startDate, endDate, limit = 10) {
     // Set up our initial statement and parameters
     // We will add to these as we build the query and execute it later
-    var query = 'SELECT donorId, SUM(amount) AS total FROM donation';
+    var query = 'SELECT donorId, SUM(amount - fee) AS total, SUM(fee) AS fees FROM donation';
     var params = {};
 
     // Determine what kind of date filtering we'll be using
@@ -144,7 +144,7 @@ function db_getLeaderboard(startDate, endDate, limit = 10) {
     params['limit'] = limit;
 
     // Wrap our query with a join to the donor table
-    query = 'SELECT name, avatar, topDonors.total AS total FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id ORDER BY topDonors.total DESC';
+    query = 'SELECT name, avatar, topDonors.total AS total, topDonors.fees AS fees FROM donor JOIN (' + query + ') AS topDonors ON topDonors.donorId = donor.id ORDER BY topDonors.total DESC';
 
     return db.prepare(query).all(params);
 }
@@ -300,14 +300,15 @@ app.get('/api/donations', function(req, res) {
     var monthStart = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-01';
     var monthEnd = endOfMonth.getFullYear() + '-' + ('0' + (endOfMonth.getMonth() + 1)).slice(-2) + '-' + ('0' + endOfMonth.getDate()).slice(-2);
 
-    // Get this month's balance
+    // Get this month's balance and fees
     var balance = db_getFunds(monthStart, monthEnd);
+    var fees = db_getFees(monthStart, monthEnd);
 
     // Get this month's leaderboard
     var leaderboard = db_getLeaderboard(monthStart, monthEnd, 8);
 
     // Send this month's target, balance, and leaderboard
-    return res.json({target: 140, balance: balance, leaderboard: leaderboard});
+    return res.json({target: 140, balance: balance, fees: fees, leaderboard: leaderboard});
 });
 
 // Start the app

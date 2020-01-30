@@ -12,6 +12,7 @@ var form = new Vue({
         amount: 0,
         donationTarget: 0,
         donationBalance: 0,
+        donationFees: 0,
         donationLeaderboard: null,
         donationProgressDollars: true,
         moneyFormat: {
@@ -114,8 +115,12 @@ var form = new Vue({
                 // Update our target and donor list
                 this.donationTarget = json.target;
                 this.donationBalance = json.balance;
+                this.donationFees = json.fees;
                 this.donationLeaderboard = json.leaderboard;
             });
+        },
+        formatFee: function(fee) {
+            return fee != 0 ? 'PayPal has skimmed ' + this.$options.filters.currency(fee) : 'PayPal hasn\'t skimmed any fees (yet)';
         }
     },
     created: function() {

@@ -38,7 +38,7 @@
         <div class="progress-container" v-if="!formDisplayed">
             <span class="heading"  v-on:click="donationProgressDollars = !donationProgressDollars">Funding Progress</span>
             <!-- Wrap the progress bar so we can catch the click event -->
-            <span v-on:click="donationProgressDollars = !donationProgressDollars" style="width: 100%;">
+            <span v-on:click="donationProgressDollars = !donationProgressDollars" style="width: 100%; cursor: pointer;" v-bind:title="formatFee(donationFees)">
                 <vue-simple-progress
                 class="funding-progress-bar"
                 size="huge"
@@ -56,7 +56,7 @@
             <div class="donor" v-for="donor in donationLeaderboard">
                 <img v-bind:src="donor.avatar">
                 <div class="name">{{donor.name ? donor.name : 'Anonymous donors'}}</div>
-                <span class="total">{{donor.total | currency}}</span>
+                <span class="total" v-bind:title="formatFee(donor.fees)">{{donor.total | currency}}</span>
                 <vue-simple-progress
                     class="progress-bar"
                     size="50"
