@@ -27,7 +27,7 @@ if (!tables.find(table => table.name == 'donor')) {
     db.prepare('CREATE TABLE donor (id INTEGER, name TEXT NOT NULL, avatar TEXT NOT NULL, PRIMARY KEY (id))').run();
 }
 if (!tables.find(table => table.name == 'donation')) {
-    db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
+    db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, fee REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
 }
 // Make sure the anonymous donor exists
 var anonymousDonorId = db.prepare('SELECT id FROM donor WHERE id = 0').get();
@@ -57,12 +57,13 @@ function db_addOrUpdateDonor(id, name, avatar) {
 }
 
 // Add a donation to the database
-function db_addDonation(donorId, amount, timestamp) {
-    var query = 'INSERT INTO donation (id, donorId, amount, timestamp) VALUES ($id, $donorId, $amount, $timestamp)';
+function db_addDonation(donorId, amount, fee, timestamp) {
+    var query = 'INSERT INTO donation (id, donorId, amount, fee, timestamp) VALUES ($id, $donorId, $amount, $fee, $timestamp)';
     var params = {
         id: uuid(),
         donorId: donorId,
         amount: amount,
+        fee: fee,
         timestamp: timestamp
     };
 
@@ -72,7 +73,30 @@ function db_addDonation(donorId, amount, timestamp) {
 
 // Get how much has been donated between the given start and end dates
 function db_getFunds(startDate, endDate) {
-    var query = 'SELECT SUM(amount) AS total FROM donation';
+    var query = 'SELECT SUM(amount - fee) AS total FROM donation';
+    var params = {};
+
+    // Determine the kind of date filtering we'll be using
+    if (startDate && endDate) { // Between two dates
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
+        params['startDate'] = startDate;
+        params['endDate'] = endDate;
+    } else if (startDate) { // After a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
+        params['startDate'] = startDate;
+    } else if (endDate) { // Before a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
+        params['endDate'] = endDate;
+    }
+
+    // Run the query
+    var total = db.prepare(query).get(params).total;
+    return total ? total : 0;
+}
+
+// Get how much has been sucked out by PayPal between the given start and end dates
+function db_getFees(startDate, endDate) {
+    var query = 'SELECT SUM(fee) AS total FROM donation';
     var params = {};
 
     // Determine the kind of date filtering we'll be using
@@ -116,7 +140,7 @@ function db_getLeaderboard(startDate, endDate, limit = 10) {
     }
 
     // Group by donor, order them by total donations, and limit to the top number of donors
-    query += ' GROUP BY donorId ORDER BY SUM(amount) LIMIT $limit';
+    query += ' GROUP BY donorId ORDER BY SUM(amount - fee) LIMIT $limit';
     params['limit'] = limit;
 
     // Wrap our query with a join to the donor table
@@ -252,20 +276,21 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
         return;
     }
 
+    // Get the details
+    var donorId = content.custom ? content.custom : 0;
+    var amount = content.mc_gross;
+    var fee = content.mc_fee;
+    var timestamp = Math.floor(Date.now()/1000); // Epoch in seconds
+
     // Log the donation
-    if (content.custom) {
-        console.log('Got a $' + content.mc_gross + ' ' + content.mc_currency + ' donation from Discord ID ' + content.custom);
+    if (donorId != 0) {
+        console.log('Got a $' + (amount - fee) + ' ' + content.mc_currency + ' (' + amount + ' - ' + fee + ') donation from Discord ID ' + donorId);
     } else {
         console.log('Got an anonymous $' + content.mc_gross + ' ' + content.mc_currency + ' donation');
     }
 
-    // Get the details
-    var donorId = content.custom ? content.custom : 0;
-    var amount = content.mc_gross;
-    var timestamp = Math.floor(Date.now()/1000); // Epoch in seconds
-
     // Add donation to the database
-    db_addDonation(donorId, amount, timestamp);
+    db_addDonation(donorId, amount, fee, timestamp);
 }, true)); // Production mode?
 
 app.get('/api/donations', function(req, res) {
