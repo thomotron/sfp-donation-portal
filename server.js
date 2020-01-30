@@ -167,8 +167,6 @@ app.use(function(req, res, next){
 });
 
 // Express routes
-// Base route
-
 // Discord authorisation
 app.get('/discord/callback', function(req, res){
     // Validate our URL query strings
