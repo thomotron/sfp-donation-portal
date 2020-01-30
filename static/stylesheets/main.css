@@ -200,12 +200,17 @@ body
 
 .progress-container .funding-progress-bar
 {
+    line-height: 50px;
+
     width: 100%;
+    height: 50px;
 
     text-align: left;
 }
 .progress-container .funding-progress-bar *
 {
+    font-size: 35px !important;
+
     border-radius: 5px;
 }
 
