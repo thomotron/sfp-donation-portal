@@ -272,7 +272,7 @@ app.get('/discord/profile', function(req, res) {
 app.post('/paypal/donation', ipn.validator((err, content) => {
     // Check if the IPN failed validation
     if (err) {
-        console.log(err);
+        console.error(err);
         return;
     }
 
