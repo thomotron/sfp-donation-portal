@@ -174,7 +174,7 @@ app.get('/discord/callback', function(req, res){
     request(options)
         .then(function(json) {
             // Ensure we have an access token, failing the request otherwise
-            if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="/*window.close()*/">Failed to get access token from Discord.</body></html>');
+            if (!json.hasOwnProperty('access_token')) return res.status(500).send('<html><body onload="/*window.close()*/">Failed to get access token from Discord. This probably isn\'t your fault.</body></html>');
 
             // Save the token to the session
             req.session.discordToken = json.access_token;
