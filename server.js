@@ -285,9 +285,6 @@ app.get('/api/donations', function(req, res) {
     return res.json({target: 140, balance: balance, leaderboard: leaderboard});
 });
 
-db_getLeaderboard();
-console.log(db_getFunds('2011-01-01', '2012-01-01'));
-
 // Start the app
 app.listen(PORT);
 console.log('Express server listening on port %d in %s mode', PORT, app.settings.env);
