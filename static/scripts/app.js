@@ -1,3 +1,6 @@
+// Define the base API URI without the trailing slash
+var BASE_REDIRECT_URI = 'http://localhost:8080';
+
 // Define and initialise up the form
 var form = new Vue({
     el: '#container',
@@ -29,7 +32,7 @@ var form = new Vue({
         openDiscordPopout: function() {
             // Open the popup
             var w = window.open(
-                'https://discordapp.com/api/oauth2/authorize?client_id=631115320823644180&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fdiscord%2Fcallback&response_type=code&scope=identify',
+                'https://discordapp.com/api/oauth2/authorize?client_id=631115320823644180&redirect_uri=' + encodeURIComponent(BASE_REDIRECT_URI) + '%2Fdiscord%2Fcallback&response_type=code&scope=identify',
                 'Authorise with Discord',
                 'width=375,height=485,top=' + ((window.innerHeight / 2) - 200) + ',left=' + ((window.innerWidth / 2) - 187)
             );
@@ -75,15 +78,15 @@ var form = new Vue({
 
             // Construct a button URL
             var url = 'https://www.paypal.com/cgi-bin/webscr' +
-                        '?cmd=_donations' +                                         // This is a donation
-                        '&business=cocytus-services@aaaaaaaaaaaaaaaaaaaaaaaa.net' + // Send it to Cocytus Services
-                        '&item_name=Keep Cocytus up and running' +                  // Donation cause/name
-                        '&no_note=1' +                                              // Disable the note field
-                        '&currency_code=AUD' +                                      // Accept AUD
-                        '&amount=' + this.amount +                                  // The donation amount in dollars
-                        '&notify_url=https://tem.party/paypal/donation' +           // The return URL to send confirmation to
-                        '&image_url=https://i.imgur.com/bkvytpE.png' +              // Image shown as the recipient's icon (SFP Logo)
-                        (this.anonymous ? '' : '&custom=' + this.discordId);        // Pass our Discord ID to verify who made the donation (if not anonymous)
+                        '?cmd=_donations' +                                                           // This is a donation
+                        '&business=cocytus-services@aaaaaaaaaaaaaaaaaaaaaaaa.net' +                   // Send it to Cocytus Services
+                        '&item_name=Keep Cocytus up and running' +                                    // Donation cause/name
+                        '&no_note=1' +                                                                // Disable the note field
+                        '&currency_code=AUD' +                                                        // Accept AUD
+                        '&amount=' + this.amount +                                                    // The donation amount in dollars
+                        '&notify_url=' + encodeURIComponent(BASE_REDIRECT_URI + '/paypal/donation') + // The return URL to send confirmation to
+                        '&image_url=https://i.imgur.com/bkvytpE.png' +                                // Image shown as the recipient's icon (SFP Logo)
+                        (this.anonymous ? '' : '&custom=' + this.discordId);                          // Pass our Discord ID to verify who made the donation (if not anonymous)
 
             // Lock the form
             this.locked = true;

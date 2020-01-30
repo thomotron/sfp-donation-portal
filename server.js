@@ -2,7 +2,7 @@
 var CLIENT_ID = ""
 var CLIENT_SECRET = ""
 var PORT = 8080;
-var REDIRECT_URI = "http://localhost:8080/discord/callback";
+var BASE_REDIRECT_URI = "http://localhost:8080";
 
 // Node module imports
 var express = require('express');
@@ -189,7 +189,7 @@ app.get('/discord/callback', function(req, res){
             grant_type: 'authorization_code',
             code: req.query.code,
             scope: 'identify',
-            redirect_uri: REDIRECT_URI
+            redirect_uri: BASE_REDIRECT_URI + '/discord/callback'
         },
         json: true
     };
