@@ -24,10 +24,10 @@ var tables = db.prepare('SELECT name FROM sqlite_master WHERE type = \'table\'')
 console.log(JSON.stringify(tables));
 // Make sure the donor and donation tables exist
 if (!tables.find(table => table.name == 'donor')) {
-    db.prepare('CREATE TABLE donor (id INTEGER, name TEXT NOT NULL, avatar TEXT NOT NULL, PRIMARY KEY (id))').run();
+    db.prepare('CREATE TABLE donor (id INTEGER NOT NULL, name TEXT NOT NULL, avatar TEXT NOT NULL, PRIMARY KEY (id))').run();
 }
 if (!tables.find(table => table.name == 'donation')) {
-    db.prepare('CREATE TABLE donation (id TEXT NOT NULL, donorId INTEGER, amount REAL NOT NULL, fee REAL NOT NULL, timestamp INTEGER NOT NULL, PRIMARY KEY (id), FOREIGN KEY (donorId) REFERENCES donor (id))').run();
+    db.prepare('CREATE TABLE donation (id INTEGER PRIMARY KEY AUTOINCREMENT, donorId INTEGER, amount REAL NOT NULL, fee REAL NOT NULL, timestamp INTEGER NOT NULL, FOREIGN KEY (donorId) REFERENCES donor (id))').run();
 }
 // Make sure the anonymous donor exists
 var anonymousDonorId = db.prepare('SELECT id FROM donor WHERE id = 0').get();
@@ -58,9 +58,8 @@ function db_addOrUpdateDonor(id, name, avatar) {
 
 // Add a donation to the database
 function db_addDonation(donorId, amount, fee, timestamp) {
-    var query = 'INSERT INTO donation (id, donorId, amount, fee, timestamp) VALUES ($id, $donorId, $amount, $fee, $timestamp)';
+    var query = 'INSERT INTO donation (donorId, amount, fee, timestamp) VALUES ($donorId, $amount, $fee, $timestamp)';
     var params = {
-        id: uuid(),
         donorId: donorId,
         amount: amount,
         fee: fee,
