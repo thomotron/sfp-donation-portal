@@ -22,12 +22,12 @@ var db = new sqlite3('donations.db', { verbose: console.log });
 // Get a list of tables in the database
 var tables = db.prepare('SELECT name FROM sqlite_master WHERE type = \'table\'').all();
 console.log(JSON.stringify(tables));
-// Make sure the donor and donation tables exist
+// Make sure the donor and transaction tables exist
 if (!tables.find(table => table.name == 'donor')) {
     db.prepare('CREATE TABLE donor (id INTEGER NOT NULL, name TEXT NOT NULL, avatar TEXT NOT NULL, PRIMARY KEY (id))').run();
 }
-if (!tables.find(table => table.name == 'donation')) {
-    db.prepare('CREATE TABLE donation (id INTEGER PRIMARY KEY AUTOINCREMENT, donorId INTEGER, amount REAL NOT NULL, fee REAL NOT NULL, timestamp INTEGER NOT NULL, FOREIGN KEY (donorId) REFERENCES donor (id))').run();
+if (!tables.find(table => table.name == 'transactions')) {
+    db.prepare('CREATE TABLE transactions (id INTEGER PRIMARY KEY AUTOINCREMENT, donorId INTEGER, amount REAL NOT NULL, fee REAL NOT NULL, timestamp INTEGER NOT NULL, FOREIGN KEY (donorId) REFERENCES donor (id))').run();
 }
 // Make sure the anonymous donor exists
 var anonymousDonorId = db.prepare('SELECT id FROM donor WHERE id = 0').get();
@@ -58,7 +58,7 @@ function db_addOrUpdateDonor(id, name, avatar) {
 
 // Add a donation to the database
 function db_addDonation(donorId, amount, fee, timestamp) {
-    var query = 'INSERT INTO donation (donorId, amount, fee, timestamp) VALUES ($donorId, $amount, $fee, $timestamp)';
+    var query = 'INSERT INTO transactions (donorId, amount, fee, timestamp) VALUES ($donorId, $amount, $fee, $timestamp)';
     var params = {
         donorId: donorId,
         amount: amount,
@@ -72,7 +72,7 @@ function db_addDonation(donorId, amount, fee, timestamp) {
 
 // Get how much has been donated between the given start and end dates
 function db_getFunds(startDate, endDate) {
-    var query = 'SELECT SUM(amount - fee) AS total FROM donation';
+    var query = 'SELECT SUM(amount - fee) AS total FROM transactions';
     var params = {};
 
     // Determine the kind of date filtering we'll be using
@@ -95,7 +95,7 @@ function db_getFunds(startDate, endDate) {
 
 // Get how much has been sucked out by PayPal between the given start and end dates
 function db_getFees(startDate, endDate) {
-    var query = 'SELECT SUM(fee) AS total FROM donation';
+    var query = 'SELECT SUM(fee) AS total FROM transactions';
     var params = {};
 
     // Determine the kind of date filtering we'll be using
@@ -122,19 +122,19 @@ function db_getFees(startDate, endDate) {
 function db_getLeaderboard(startDate, endDate, limit = 10) {
     // Set up our initial statement and parameters
     // We will add to these as we build the query and execute it later
-    var query = 'SELECT donorId, SUM(amount - fee) AS total, SUM(fee) AS fees FROM donation';
+    var query = 'SELECT donorId, SUM(amount - fee) AS total, SUM(fee) AS fees FROM transactions';
     var params = {};
 
     // Determine what kind of date filtering we'll be using
     if (startDate && endDate) { // Between two dates
-        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
+        query += ' AND DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
         params['startDate'] = startDate;
         params['endDate'] = endDate;
     } else if (startDate) { // After a certain date
-        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
+        query += ' AND DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
         params['startDate'] = startDate;
     } else if (endDate) { // Before a certain date
-        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
+        query += ' AND DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
         params['endDate'] = endDate;
     }
 
