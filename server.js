@@ -70,6 +70,19 @@ function db_addDonation(donorId, amount, fee, timestamp) {
     db.prepare(query).run(params);
 }
 
+// Add a payment to the database
+function db_addPayment(amount, fee, timestamp) {
+    var query = 'INSERT INTO transactions (amount, fee, timestamp) VALUES ($amount, $fee, $timestamp)';
+    var params = {
+        amount: amount,
+        fee: fee,
+        timestamp: timestamp
+    };
+
+    // Run the query
+    db.prepare(query).run(params);
+}
+
 // Get how much has been donated between the given start and end dates
 function db_getFunds(startDate, endDate) {
     var query = 'SELECT SUM(amount - fee) AS total FROM transactions';
@@ -122,7 +135,7 @@ function db_getFees(startDate, endDate) {
 function db_getLeaderboard(startDate, endDate, limit = 10) {
     // Set up our initial statement and parameters
     // We will add to these as we build the query and execute it later
-    var query = 'SELECT donorId, SUM(amount - fee) AS total, SUM(fee) AS fees FROM transactions';
+    var query = 'SELECT donorId, SUM(amount - fee) AS total, SUM(fee) AS fees FROM transactions WHERE donorId IS NOT NULL';
     var params = {};
 
     // Determine what kind of date filtering we'll be using
@@ -279,15 +292,22 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
     var fee = content.mc_fee;
     var timestamp = Math.floor(Date.now()/1000); // Epoch in seconds
 
-    // Log the donation
-    if (donorId != 0) {
-        console.log('Got a $' + (amount - fee) + ' ' + content.mc_currency + ' (' + amount + ' - ' + fee + ') donation from Discord ID ' + donorId);
+    // Check if this was a payment
+    if (content.mc_gross == -140) {
+        // Add a payment
+        db_addPayment(amount, fee, timestamp);
     } else {
-        console.log('Got an anonymous $' + content.mc_gross + ' ' + content.mc_currency + ' donation');
+        // Log the donation
+        if (donorId != 0) {
+            console.log('Got a $' + (amount - fee) + ' ' + content.mc_currency + ' (' + amount + ' - ' + fee + ') donation from Discord ID ' + donorId);
+        } else {
+            console.log('Got an anonymous $' + content.mc_gross + ' ' + content.mc_currency + ' donation');
+        }
+
+        // Add donation to the database
+        db_addDonation(donorId, amount, fee, timestamp);
     }
 
-    // Add donation to the database
-    db_addDonation(donorId, amount, fee, timestamp);
 }, true)); // Production mode?
 
 app.get('/api/donations', function(req, res) {
@@ -297,12 +317,10 @@ app.get('/api/donations', function(req, res) {
     var monthStart = today.getFullYear() + '-' + ('0' + (today.getMonth() + 1)).slice(-2) + '-01';
     var monthEnd = endOfMonth.getFullYear() + '-' + ('0' + (endOfMonth.getMonth() + 1)).slice(-2) + '-' + ('0' + endOfMonth.getDate()).slice(-2);
 
-    // Get this month's balance and fees
-    var balance = db_getFunds(monthStart, monthEnd);
+    // Get this month's fees, leaderboard, and current balance
     var fees = db_getFees(monthStart, monthEnd);
-
-    // Get this month's leaderboard
     var leaderboard = db_getLeaderboard(monthStart, monthEnd, 8);
+    var balance = db_getFunds('', monthEnd);
 
     // Send this month's target, balance, and leaderboard
     return res.json({target: 140, balance: balance, fees: fees, leaderboard: leaderboard});
