@@ -129,6 +129,32 @@ function db_getFees(startDate, endDate) {
     return total ? total : 0;
 }
 
+// Get the total amount donated between the given start and end dates
+function db_getDonated(startDate, endDate) {
+    var query = 'SELECT SUM(amount - fee) AS total FROM transactions';
+    var params = {};
+
+    // Determine the kind of date filtering we'll be using
+    if (startDate && endDate) { // Between two dates
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') BETWEEN $startDate AND $endDate';
+        params['startDate'] = startDate;
+        params['endDate'] = endDate;
+    } else if (startDate) { // After a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') >= $startDate';
+        params['startDate'] = startDate;
+    } else if (endDate) { // Before a certain date
+        query += ' WHERE DATETIME(timestamp, \'unixepoch\', \'utc\') <= $endDate';
+        params['endDate'] = endDate;
+    }
+
+    // Ignore payments
+    query += ' AND donorId IS NOT NULL';
+
+    // Run the query
+    var total = db.prepare(query).get(params).total;
+    return total ? total : 0;
+}
+
 // Get the top donators and how much they have donated between the given dates
 // Returns an array of objects containing name, avatar, and total donation
 // Format: [{name:str, avatar:str, total:float}, ...]
@@ -286,6 +312,15 @@ app.post('/paypal/donation', ipn.validator((err, content) => {
         return;
     }
 
+    // Dump the IPN to the terminal
+    console.log('==================================');
+    console.log('============ BEGIN IPN ===========');
+    console.log('==================================');
+    console.log(content);
+    console.log('==================================');
+    console.log('============= END IPN ============');
+    console.log('==================================');
+
     // Get the details
     var donorId = content.custom ? content.custom : 0;
     var amount = content.mc_gross;
@@ -321,9 +356,10 @@ app.get('/api/donations', function(req, res) {
     var fees = db_getFees(monthStart, monthEnd);
     var leaderboard = db_getLeaderboard(monthStart, monthEnd, 8);
     var balance = db_getFunds('', monthEnd);
+    var thisMonth = db_getDonated(monthStart, monthEnd);
 
     // Send this month's target, balance, and leaderboard
-    return res.json({target: 140, balance: balance, fees: fees, leaderboard: leaderboard});
+    return res.json({target: 140, balance: balance, thisMonth: thisMonth, fees: fees, leaderboard: leaderboard});
 });
 
 // Start the app

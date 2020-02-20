@@ -15,6 +15,7 @@ var form = new Vue({
         amount: 0,
         donationTarget: 0,
         donationBalance: 0,
+        donationBalanceThisMonth: 0,
         donationFees: 0,
         donationLeaderboard: null,
         donationProgressDollars: true,
@@ -118,6 +119,7 @@ var form = new Vue({
                 // Update our target and donor list
                 this.donationTarget = json.target;
                 this.donationBalance = json.balance;
+                this.donationBalanceThisMonth = json.thisMonth;
                 this.donationFees = json.fees;
                 this.donationLeaderboard = json.leaderboard;
             });
