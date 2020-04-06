@@ -80,7 +80,7 @@ var form = new Vue({
             // Construct a button URL
             var url = 'https://www.paypal.com/cgi-bin/webscr' +
                         '?cmd=_donations' +                                                           // This is a donation
-                        '&business=cocytus-services@aaaaaaaaaaaaaaaaaaaaaaaa.net' +                   // Send it to Cocytus Services
+                        '&business=cocytus@sassyfoods.net' +                                          // Send it to Cocytus Services
                         '&item_name=Keep Cocytus up and running' +                                    // Donation cause/name
                         '&no_note=1' +                                                                // Disable the note field
                         '&currency_code=AUD' +                                                        // Accept AUD
